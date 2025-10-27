@@ -17,6 +17,7 @@ typedef struct {
     int32_t imm;      // immediate (I, S, B, U, J)
 } Instruction;
 
-Instruction* parse_binary_file(const char *filename, size_t *out_count);
+Instruction decode_riscv(uint32_t instr);
+
 
 #endif //DECODER_H
