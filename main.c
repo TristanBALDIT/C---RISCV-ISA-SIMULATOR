@@ -7,25 +7,14 @@
 #include "include/decode.h"
 #include "include/registers.h"
 #include "include/execute.h"
+#include "include/memory.h"
 
-#define MEM_SIZE (1024 * 1024)
-#define MEM_BASE  0x00000000
 
 // Register and Program Counter setup
 uint32_t regs[NUM_REGS] = {0};
 uint32_t PC = MEM_BASE;
 
-typedef struct {
-    uint8_t *data;
-    uint32_t size;
-} Memory;
 
-uint32_t loadW(Memory *mem, uint32_t addr) {
-    return mem->data[addr] |
-           (mem->data[addr + 1] << 8) |
-           (mem->data[addr + 2] << 16) |
-           (mem->data[addr + 3] << 24);
-}
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {

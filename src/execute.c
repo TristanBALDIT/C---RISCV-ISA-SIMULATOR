@@ -1,5 +1,4 @@
 #include "../include/execute.h"
-#include <cstdint>
 #include <stdint.h>
 
 
@@ -124,7 +123,7 @@ int handleBType(decoded_fields instr) {
         default:
             return -1; // Invalid B-Type funct3
     }
-    
+
     if(shouldBranch == 1){
         PC += pcOffset;
     }else{
