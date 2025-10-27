@@ -12,8 +12,10 @@ typedef struct {
 } Memory;
 
 uint32_t loadW(Memory *mem, uint32_t addr);
-
-
+void storeByte(uint8_t *memory, uint32_t addr, uint8_t value);
+void storeHalfword(uint8_t *memory, uint32_t addr, uint16_t value);
+void storeWord(uint8_t *memory, uint32_t addr, uint32_t value);
+   
 
 
 #endif
