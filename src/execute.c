@@ -1,6 +1,4 @@
 #include "../include/execute.h"
-#include <stdint.h>
-
 
 int handleRType(decoded_fields instr) {
     uint32_t rs1 = regs[instr.r.rs1]; // Soucre register
@@ -62,11 +60,65 @@ int handleRType(decoded_fields instr) {
 
     return 0;
 }
-int handleIType(decoded_fields instr, uint8_t *memory){
+int handleIArithmetic(decoded_fields instr){
+    return 1;
+}
+int handleILoad(decoded_fields instr, uint8_t *memory){
+    return 1;
+}
+int handleJALR(decoded_fields instr){
+    uint32_t rs1 = regs[instr.i.rs1]; // Soucre register
+    imm_t offset = instr.i.imm; 
+    uint32_t target = (rs1 + offset) & 0xFFFFFFFE;
+
+    // Like JAL, if we are jumping we need to store the return address (current PC + 4) 
+    if (instr.i.rd != ZERO) { // If rd is x0, then we cannot override it (ie. we aren't returning)
+        regs[instr.i.rd] = PC + 4;
+    }
+
+    PC = target;
     return 0;
 }
+int handleIType(decoded_fields instr, uint8_t *memory){
+    switch (instr.opcode) {
+        case IMM: // Arithmetic/logical immediates
+            return handleIArithmetic(instr);
+
+        case LOAD: // Loads from memory
+            return handleILoad(instr, memory);
+
+        case JALR: // Jump and link register
+            return handleJALR(instr);
+
+        default:
+            return -1; // Unknown I-type opcode
+    }
+}
 int handleSType(decoded_fields instr, uint8_t *memory){
+    uint32_t rs1 = regs[instr.s.rs1];
+    uint32_t rs2 = regs[instr.s.rs2];
+    imm_t offset = instr.s.imm;
+    uint32_t address = rs1 + offset;
+
+    switch (instr.s.funct3) {
+        case F3_000: // Store byte
+            // rs2 & 0xFF (8 bit mask), ensures we only store 8 bits
+            storeByte(memory, address,  rs2 & 0xFF);
+            break;
+        case F3_001: // Store halfword
+            // rs2 & 0xFFFF (16 bit mask), ensures we only store 16 bits
+            storeHalfword(memory, address,  rs2 & 0xFFFF);
+            break;
+        case F3_010: // Store word
+            // rs2 (without a mask), as we want the whole 32 bit word
+            storeWord(memory, address,  rs2 );
+            break;
+        default:
+            return -1; // Invalid S-Type funct3
+    }
+
     return 0;
+
 }
 int handleUType(decoded_fields instr){
     switch (instr.opcode) {
