@@ -88,8 +88,8 @@ static void debugPrintInstructionFields(decoded_fields decoded) {
             printf("  rd     = x%d (%s)\n", decoded.r.rd, regName(decoded.r.rd));
             printf("  rs1    = x%d (%s)\n", decoded.r.rs1, regName(decoded.r.rs1));
             printf("  rs2    = x%d (%s)\n", decoded.r.rs2, regName(decoded.r.rs2));
-            printf("  funct3 = 0x%X (%s)\n", decoded.r.funct3, funct3Name(decoded.r.funct3));
-            printf("  funct7 = 0x%X \n", decoded.r.funct7);
+            printf("  funct3 = 0x%X (%s)\n", decoded.r.funct3, funct3Name(decoded.opcode, decoded.r.funct3));
+            printf("  funct7 = 0x%X (%s)\n", decoded.r.funct7, funct7Name(decoded.opcode, decoded.r.funct3, decoded.r.funct7));
             break;
 
         case I_TYPE:
@@ -97,7 +97,7 @@ static void debugPrintInstructionFields(decoded_fields decoded) {
             printf("Opcode: 0x%02X (%s)\n", decoded.opcode, opcodeName(decoded.opcode));
             printf("  rd     = x%d (%s)\n", decoded.i.rd, regName(decoded.i.rd));
             printf("  rs1    = x%d (%s)\n", decoded.i.rs1, regName(decoded.i.rs1));
-            printf("  funct3 = 0x%X (%s)\n", decoded.i.funct3, funct3Name(decoded.i.funct3));
+            printf("  funct3 = 0x%X (%s)\n", decoded.i.funct3, funct3Name(decoded.opcode, decoded.i.funct3));
             printf("  imm    = %d (%#010x) \n",decoded.i.imm, (uint32_t)decoded.i.imm);
             break;
 
@@ -106,7 +106,7 @@ static void debugPrintInstructionFields(decoded_fields decoded) {
             printf("Opcode: 0x%02X (%s)\n", decoded.opcode, opcodeName(decoded.opcode));
             printf("  rs1    = x%d (%s)\n", decoded.s.rs1, regName(decoded.s.rs1));
             printf("  rs2    = x%d (%s)\n", decoded.s.rs2, regName(decoded.s.rs2));
-            printf("  funct3 = 0x%X (%s)\n", decoded.s.funct3, funct3Name(decoded.s.funct3));
+            printf("  funct3 = 0x%X (%s)\n", decoded.s.funct3, funct3Name(decoded.opcode, decoded.s.funct3));
             printf("  imm    = %d (%#010x) \n",decoded.s.imm, (uint32_t)decoded.s.imm);
             break;
 
@@ -122,7 +122,7 @@ static void debugPrintInstructionFields(decoded_fields decoded) {
             printf("Opcode: 0x%02X (%s)\n", decoded.opcode, opcodeName(decoded.opcode));
             printf("  rs1    = x%d (%s)\n", decoded.b.rs1, regName(decoded.b.rs1));
             printf("  rs2    = x%d (%s)\n", decoded.b.rs2, regName(decoded.b.rs2));
-            printf("  funct3 = 0x%X (%s)\n", decoded.b.funct3, funct3Name(decoded.b.funct3));
+            printf("  funct3 = 0x%X (%s)\n", decoded.b.funct3, funct3Name(decoded.opcode, decoded.b.funct3));
             printf("  imm    = %d (%#010x) \n", decoded.b.imm, (uint32_t)decoded.b.imm);
             break;
 
