@@ -2,9 +2,9 @@
 
 
 int handleRType(decoded_fields instr) {
-    uint32_t rs1_val = regs[instr.r.rs1]; 
-    uint32_t rs2_val = regs[instr.r.rs2];
-    uint32_t result = 0;
+    uint32_t rs1_val = regs[instr.r.rs1]; // Soucre register
+    uint32_t rs2_val = regs[instr.r.rs2]; // Source register
+    uint32_t result = 0; // The value to place in the destination register
 
     switch (instr.r.funct3) {
         case F3_000: // ADD or SUB
@@ -61,11 +61,29 @@ int handleRType(decoded_fields instr) {
 
     return 0;
 }
-int handleIType(decoded_fields instr, uint8_t *memory){return 0;}
-int handleSType(decoded_fields instr, uint8_t *memory){return 0;}
-int handleUType(decoded_fields instr){return 0;}
-int handleBType(decoded_fields instr) {return 0;}
-int handleJType(decoded_fields instr) {return 0;}
+int handleIType(decoded_fields instr, uint8_t *memory){
+    return 0;
+}
+int handleSType(decoded_fields instr, uint8_t *memory){
+    return 0;
+}
+int handleUType(decoded_fields instr){
+    return 0;
+}
+int handleBType(decoded_fields instr) {
+    return 0;
+}
+int handleJType(decoded_fields instr) {
+    imm_t pcOffset = instr.j.imm;
+
+    // Since we are jumping we need to store the return address (current PC + 4) 
+    if (instr.j.rd != ZERO){  // If rd is x0, then we cannot override it (ie. we aren't returning)
+        regs[instr.j.rd] = PC + 4;
+    }
+    PC += pcOffset;
+
+    return 0;
+}
 
 int executeInstruction(decoded_fields instr, uint8_t *memory){
     switch(instr.instrType){
