@@ -1,16 +1,8 @@
+#include <float.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-
-typedef struct {
-    uint8_t opcode;   // [6:0]
-    uint8_t rd;       // [11:7]
-    uint8_t funct3;   // [14:12]
-    uint8_t rs1;      // [19:15]
-    uint8_t rs2;      // [24:20]
-    uint8_t funct7;   // [31:25]
-    int32_t imm;      // immediate (I, S, B, U, J)
-} Instruction;
+#include "decoder.h"
 
 // Decode a single 32-bit RISC-V instruction
 Instruction decode_riscv(uint32_t instr) {
@@ -107,28 +99,29 @@ Instruction* parse_binary_file(const char *filename, size_t *out_count) {
     return instructions;
 }
 
-int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        printf("Usage: %s <binary_file>\n", argv[0]);
-        return 1;
-    }
+// int main(int argc, char *argv[]) {
+//     if (argc < 2) {
+//         printf("Usage: %s <binary_file>\n", argv[0]);
+//         return 1;
+//     }
+//
+//     size_t count;
+//     Instruction *instructions = parse_binary_file(argv[1], &count);
+//     if (!instructions) return 1;
+//
+//     // Print decoded instructions
+//     for (size_t i = 0; i < count; i++) {
+//         printf("Instruction %zu:\n", i);
+//         printf("  opcode : 0x%02X\n", instructions[i].opcode);
+//         printf("  rd     : %u\n", instructions[i].rd);
+//         printf("  funct3 : %u\n", instructions[i].funct3);
+//         printf("  rs1    : %u\n", instructions[i].rs1);
+//         printf("  rs2    : %u\n", instructions[i].rs2);
+//         printf("  funct7 : 0x%02X\n", instructions[i].funct7);
+//         printf("  imm    : %d (0x%X)\n\n", instructions[i].imm, instructions[i].imm);
+//     }
+//
+//     free(instructions);
+//     return 0;
+// }
 
-    size_t count;
-    Instruction *instructions = parse_binary_file(argv[1], &count);
-    if (!instructions) return 1;
-
-    // Print decoded instructions
-    for (size_t i = 0; i < count; i++) {
-        printf("Instruction %zu:\n", i);
-        printf("  opcode : 0x%02X\n", instructions[i].opcode);
-        printf("  rd     : %u\n", instructions[i].rd);
-        printf("  funct3 : %u\n", instructions[i].funct3);
-        printf("  rs1    : %u\n", instructions[i].rs1);
-        printf("  rs2    : %u\n", instructions[i].rs2);
-        printf("  funct7 : 0x%02X\n", instructions[i].funct7);
-        printf("  imm    : %d (0x%X)\n\n", instructions[i].imm, instructions[i].imm);
-    }
-
-    free(instructions);
-    return 0;
-}
