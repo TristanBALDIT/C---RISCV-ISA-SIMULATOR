@@ -4,22 +4,17 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "decoder.h"
+#include "include/decode.h"
+#include "include/registers.h"
+#include "include/execute.h"
+#include "include/memory.h"
 
-#define MEM_SIZE (1024 * 1024)
-#define MEM_BASE  0x00000000
 
-typedef struct {
-    uint8_t *data;
-    uint32_t size;
-} Memory;
+// Register and Program Counter setup
+uint32_t regs[NUM_REGS] = {0};
+uint32_t PC = MEM_BASE;
 
-uint32_t loadW(Memory *mem, uint32_t addr) {
-    return mem->data[addr] |
-           (mem->data[addr + 1] << 8) |
-           (mem->data[addr + 2] << 16) |
-           (mem->data[addr + 3] << 24);
-}
+
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -38,7 +33,7 @@ int main(int argc, char *argv[]) {
     FILE *file = fopen(argv[1], "rb");
     if (!file) {
         perror("Failed to open file");
-        free(mem.data);  // <-- free here to avoid leak
+        free(mem.data);
         return 1;
     }
 
@@ -49,7 +44,7 @@ int main(int argc, char *argv[]) {
     if (fsize < 0 || fsize > mem.size) {
         fprintf(stderr, "File too big\n");
         fclose(file);
-        free(mem.data);  // <-- free here
+        free(mem.data);  
         return 1;
     }
 
@@ -58,21 +53,22 @@ int main(int argc, char *argv[]) {
 
     printf("Loaded %ld bytes into memory\n", fsize);
 
-    // --- CPU setup ---
-    uint32_t PC = MEM_BASE;
-    uint32_t registers[32];
+    while (PC < fsize) {
+        uint32_t instr = loadW(&mem, PC);                 
+        decoded_fields decoded = decodeInstruction(instr); 
+        int status = executeInstruction(decoded, &mem); 
 
-    Instruction i = decode_riscv(loadW(&mem, PC));
-    printf("Instruction %zu:\n", i);
-    printf("  opcode : 0x%02X\n", i.opcode);
-    printf("  rd     : %u\n", i.rd);
-    printf("  funct3 : %u\n", i.funct3);
-    printf("  rs1    : %u\n", i.rs1);
-    printf("  rs2    : %u\n", i.rs2);
-    printf("  funct7 : 0x%02X\n", i.funct7);
-    printf("  imm    : %d (0x%X)\n\n", i.imm, i.imm);
+        if (status == 1) {
+            printf("Program halted by ECALL\n");
+            break;
+        }
 
-    free(mem.data);  // <-- free at the end to avoid leak
+        // Advance PC unless modified by branch/jump
+        if (decoded.instrType != B_TYPE && decoded.instrType != J_TYPE)
+            PC += 4;
+    }
+    //Have some logic to flush registers to a file...
+
+    free(mem.data);  
     return 0;
 }
-
