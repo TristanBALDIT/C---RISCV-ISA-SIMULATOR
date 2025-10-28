@@ -67,7 +67,15 @@ int main(int argc, char *argv[]) {
         if (decoded.instrType != B_TYPE && decoded.instrType != J_TYPE)
             PC += 4;
     }
-    //Have some logic to flush registers to a file...
+    // Have some logic to flush registers to a file...
+    dumpRegisterContents();
+    int wroteFile = dumpRegisterContentsFile(argv[1]);
+
+    if(wroteFile < 0){
+        perror("Failed to write register to a file\n");
+        free(mem.data);
+        return 1;
+    }
 
     free(mem.data);  
     return 0;
