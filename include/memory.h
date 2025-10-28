@@ -11,7 +11,11 @@ typedef struct {
     uint32_t size;
 } Memory;
 
+uint32_t loadB(Memory *mem, uint32_t addr);
+uint32_t loadHW(Memory *mem, uint32_t addr);
 uint32_t loadW(Memory *mem, uint32_t addr);
+uint32_t loadBU(Memory *mem, uint32_t addr);
+uint32_t loadHWU(Memory *mem, uint32_t addr);
 void storeByte(uint8_t *memory, uint32_t addr, uint8_t value);
 void storeHalfword(uint8_t *memory, uint32_t addr, uint16_t value);
 void storeWord(uint8_t *memory, uint32_t addr, uint32_t value);

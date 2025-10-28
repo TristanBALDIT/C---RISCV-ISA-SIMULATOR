@@ -1,4 +1,5 @@
 #include "../include/execute.h"
+#include <memory.h>
 
 int handleRType(decoded_fields instr) {
     uint32_t rs1 = regs[instr.r.rs1]; // Soucre register
@@ -127,8 +128,43 @@ int handleIArithmetic(decoded_fields instr) {
     return 0;
 }
 
-int handleILoad(decoded_fields instr, uint8_t *memory){
-    return 1;
+int handleILoad(decoded_fields instr, Memory *memory) {
+    uint32_t rs1 = regs[instr.i.rs1];
+    imm_t offset = instr.i.imm;
+    uint32_t address = rs1 + offset; // Memory address to load from
+    uint32_t result = 0; // The value to place in the destination register
+
+    switch (instr.i.funct3) {
+        case F3_000: // LB, Load Byte (8 bits, signed)
+            result = loadB(memory, address);
+            break;
+
+        case F3_001: // LH, Load halfword (16 bits, signed)
+            result = loadHW(memory, address);
+            break;
+
+        case F3_010: // LW, Load word (32 bits, signed)
+            result = loadW(memory, address);
+            break;
+
+        case F3_100: // LBU, Load byte (8 bits, unsigned)
+            result = loadBU(memory, address);
+            break;
+
+        case F3_101: // LHU — Load halfword (16 bits, unsigned)
+            result = loadHWU(memory, address);
+            break;
+
+        default:
+            return -1; // Invalid load funct3
+    }
+
+    // Prevents destination register from updating if its the x0 (ZERO) register
+    if (instr.i.rd != ZERO) {
+        regs[instr.i.rd] = result;
+    }
+
+    return 0;
 }
 
 int handleJALR(decoded_fields instr){
@@ -144,7 +180,7 @@ int handleJALR(decoded_fields instr){
     PC = target;
     return 0;
 }
-int handleIType(decoded_fields instr, uint8_t *memory){
+int handleIType(decoded_fields instr, Memory *memory){
     switch (instr.opcode) {
         case IMM: // Arithmetic/logical immediates
             return handleIArithmetic(instr);
@@ -159,7 +195,7 @@ int handleIType(decoded_fields instr, uint8_t *memory){
             return -1; // Unknown I-type opcode
     }
 }
-int handleSType(decoded_fields instr, uint8_t *memory){
+int handleSType(decoded_fields instr, Memory *memory){
     uint32_t rs1 = regs[instr.s.rs1];
     uint32_t rs2 = regs[instr.s.rs2];
     imm_t offset = instr.s.imm;
@@ -168,15 +204,15 @@ int handleSType(decoded_fields instr, uint8_t *memory){
     switch (instr.s.funct3) {
         case F3_000: // Store byte
             // rs2 & 0xFF (8 bit mask), ensures we only store 8 bits (a byte)
-            storeByte(memory, address,  rs2 & 0xFF);
+            storeByte(memory->data, address,  rs2 & 0xFF);
             break;
         case F3_001: // Store halfword
             // rs2 & 0xFFFF (16 bit mask), ensures we only store 16 bits (halfword)
-            storeHalfword(memory, address,  rs2 & 0xFFFF);
+            storeHalfword(memory->data, address,  rs2 & 0xFFFF);
             break;
         case F3_010: // Store word
             // rs2 (without a mask), as we want the whole 32 bits (word)
-            storeWord(memory, address,  rs2 );
+            storeWord(memory->data, address,  rs2 );
             break;
         default:
             return -1; // Invalid S-Type funct3
@@ -261,7 +297,7 @@ int handleJType(decoded_fields instr) {
     return 0;
 }
 
-int executeInstruction(decoded_fields instr, uint8_t *memory){
+int executeInstruction(decoded_fields instr, Memory *memory){
     switch(instr.instrType){
     case R_TYPE:
         handleRType(instr);
