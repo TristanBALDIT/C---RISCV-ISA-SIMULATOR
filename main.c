@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
     while (PC < fsize) {
         uint32_t instr = loadW(&mem, PC);                 
         decoded_fields decoded = decodeInstruction(instr); 
-        int status = executeInstruction(decoded, mem.data); 
+        int status = executeInstruction(decoded, &mem); 
 
         if (status == 1) {
             printf("Program halted by ECALL\n");
