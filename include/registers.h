@@ -2,6 +2,9 @@
 #define REGS_H
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define NUM_REGS 32
 
@@ -58,5 +61,8 @@ static inline const char *regName(reg_t r) {
     return names[r];
 }
 
+void dumpRegisterContents();
+int dumpRegisterContentsFile(const char *filename);
+char* makeDumpFilename(const char *input);
 
 #endif

@@ -11,6 +11,12 @@ BIN := main
 SRCS := $(wildcard $(SRC_DIR)/*.c) main.c
 OBJS := $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SRCS)))
 
+# Test input and expected output
+TESTFILE ?= test/addlarge.bin
+BASENAME = $(basename $(notdir $(TESTFILE)))
+MYDUMP = test/$(BASENAME)-answer.res
+EXPECTED = test/$(BASENAME).res
+
 # Default target
 all: $(BIN)
 
@@ -29,8 +35,17 @@ $(OBJ_DIR)/main.o: main.c | $(OBJ_DIR)
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
+# Run test and compare output
+test: $(BIN)
+	./$(BIN) $(TESTFILE)
+	@echo "Comparing register contents with the provided answer bin..."
+	@diff -u $(EXPECTED) $(MYDUMP) > diff.out && \
+		echo "Register contents match!" || \
+        (echo "Register contents don't match!\n"; cat diff.out)
+	@rm -f diff.out
+
 # Clean build artifacts
 clean:
-	rm -rf $(OBJ_DIR) $(BIN)
+	rm -rf $(OBJ_DIR) $(BIN) $(MYDUMP)
 
 .PHONY: all clean
