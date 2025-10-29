@@ -16,7 +16,7 @@ TESTFILE ?= test/addlarge.bin
 BASENAME = $(basename $(notdir $(TESTFILE)))
 MYDUMP = test/$(BASENAME)-answer.res
 EXPECTED = test/$(BASENAME).res
-
+ALLANSWERFILES = test/*-answer.res
 # Default target
 all: $(BIN)
 
@@ -46,6 +46,6 @@ test: $(BIN)
 
 # Clean build artifacts
 clean:
-	rm -rf $(OBJ_DIR) $(BIN) $(MYDUMP)
+	rm -rf $(OBJ_DIR) $(BIN) $(ALLANSWERFILES)
 
 .PHONY: all clean
