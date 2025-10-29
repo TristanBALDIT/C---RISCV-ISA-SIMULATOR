@@ -48,4 +48,4 @@ test: $(BIN)
 clean:
 	rm -rf $(OBJ_DIR) $(BIN) $(ALLANSWERFILES)
 
-.PHONY: all clean
+.PHONY: all clean test
