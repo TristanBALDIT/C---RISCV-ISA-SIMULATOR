@@ -1,5 +1,4 @@
 #include "../include/execute.h"
-#include <memory.h>
 
 int handleRType(decoded_fields instr) {
     uint32_t rs1 = regs[instr.r.rs1]; // Soucre register
@@ -61,7 +60,6 @@ int handleRType(decoded_fields instr) {
 
     return 0;
 }
-
 int handleIArithmetic(decoded_fields instr) {
     uint32_t rs1 = regs[instr.i.rs1]; // source register
     imm_t imm = instr.i.imm; // imm value
@@ -127,7 +125,6 @@ int handleIArithmetic(decoded_fields instr) {
 
     return 0;
 }
-
 int handleILoad(decoded_fields instr, Memory *memory) {
     uint32_t rs1 = regs[instr.i.rs1];
     imm_t offset = instr.i.imm;
@@ -166,7 +163,6 @@ int handleILoad(decoded_fields instr, Memory *memory) {
 
     return 0;
 }
-
 int handleJALR(decoded_fields instr){
     uint32_t rs1 = regs[instr.i.rs1]; // Soucre register
     imm_t offset = instr.i.imm; 
@@ -180,17 +176,63 @@ int handleJALR(decoded_fields instr){
     PC = target;
     return 0;
 }
+int handleECALL(Memory *memory){
+    // Load a7 and a0 to identify ecall 
+    uint32_t a0 = regs[A0];
+    uint32_t a7 = regs[A7];
+
+    // ECALL's from Ripes documentation
+    switch (a7) {
+        case 1: // Prints the value located in a0 as a signed int
+            printf("%d", (int32_t) a0);
+            break;
+        case 2: // Prints the value located in a0 as a floating point number
+            printf("%f", *(float *) &a0);
+            break;
+        case 4: // Prints the null-terminated string located at address in a0
+            while(1){ 
+                uint8_t a = loadB(memory, a0++);
+                if(a == '\0'){ // Assumes that a null-terminated string is present (since if not it will run forever)
+                    break;
+                }else{
+                    printf("%c", a);
+                }
+            }
+            break;
+        case 10: // Halts the simulator
+            return 1; // By returning 1 we signal to the main loop to exit
+        case 11: // Prints the value located in a0 as an ASCII character
+            printf("%c", (char) a0); // Assuming that a0 is a valid ASCII char
+            break;
+        case 34: // Prints the value located in a0 as a hex number
+            printf("0x%X", a0);
+            break;
+        case 35: // Prints the value located in a0 as a binary number
+            for(int i = 31; i>= 0 ; i--){ // From MSB to LSB
+                char a = (a0 & (1U << i)) ? '1' : '0'; // Masks each bit (one by one) in a0 to determine what to print
+                printf("%c", a);
+            }
+            break;
+        case 36: // Prints the value located in a0 as an unsigned integer
+            printf("%u", a0);
+            break;
+        case 93: // Halts the simulator and exits with status code in a0
+            return 1; // By returning 1 we signal to the main loop to exit 
+        default:
+            return -1; // Unknown ECALL type
+    }
+    return 0;
+}
 int handleIType(decoded_fields instr, Memory *memory){
     switch (instr.opcode) {
         case IMM: // Arithmetic/logical immediates
             return handleIArithmetic(instr);
-
         case LOAD: // Loads from memory
             return handleILoad(instr, memory);
-
         case JALR: // Jump and link register
             return handleJALR(instr);
-
+        case SYSTEM: // Handles the ecall instructions 
+            return handleECALL(memory); 
         default:
             return -1; // Unknown I-type opcode
     }
@@ -300,25 +342,18 @@ int handleJType(decoded_fields instr) {
 int executeInstruction(decoded_fields instr, Memory *memory){
     switch(instr.instrType){
     case R_TYPE:
-        handleRType(instr);
-        break;
+        return handleRType(instr);
     case I_TYPE:
-        handleIType(instr, memory);
-        break;
+        return handleIType(instr, memory);
     case S_TYPE:
-        handleSType(instr, memory);
-        break;
+        return handleSType(instr, memory);
     case U_TYPE:
-        handleUType(instr);
-        break;
+        return handleUType(instr);
     case B_TYPE:
-        handleBType(instr);
-        break;
+        return handleBType(instr);
     case J_TYPE:
-        handleJType(instr);
-        break;
+        return handleJType(instr);
     default:
         return -1;
     }
-    return 0;
 }

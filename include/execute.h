@@ -20,5 +20,6 @@ int handleJType(decoded_fields instr);
 int handleIArithmetic(decoded_fields instr);
 int handleILoad(decoded_fields instr, Memory *memory);
 int handleJALR(decoded_fields instr);
+int handleECALL(Memory *memory);
 
 #endif
