@@ -1,3 +1,4 @@
 test/*-answer.res
+test/*.s
 obj/*
 main
