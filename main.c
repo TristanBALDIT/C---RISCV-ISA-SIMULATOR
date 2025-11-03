@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Advance PC unless modified by branch/jump
-        if (decoded.instrType != B_TYPE && decoded.instrType != J_TYPE)
+        if (decoded.instrType != B_TYPE && decoded.instrType != J_TYPE && (decoded.instrType != I_TYPE && decoded.opcode != JALR))
             PC += 4;
     }
     // Have some logic to flush registers to a file...
