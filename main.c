@@ -14,8 +14,6 @@
 uint32_t regs[NUM_REGS] = {0};
 uint32_t PC = MEM_BASE;
 
-
-
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         printf("Usage: %s <binary_file>\n", argv[0]);
@@ -64,7 +62,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Advance PC unless modified by branch/jump
-        if (decoded.instrType != B_TYPE && decoded.instrType != J_TYPE && (decoded.instrType != I_TYPE && decoded.opcode != JALR))
+        if (decoded.instrType != B_TYPE && decoded.instrType != J_TYPE && !(decoded.instrType == I_TYPE && decoded.opcode == JALR))
             PC += 4;
     }
     // Have some logic to flush registers to a file...
