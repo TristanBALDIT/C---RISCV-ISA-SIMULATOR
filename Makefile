@@ -44,6 +44,21 @@ test: $(BIN)
         (echo "Register contents don't match!\n"; cat diff.out)
 	@rm -f diff.out
 
+# Run test and compare output for all .bin files
+test-all: $(BIN)
+	@for file in test/*.bin; do \
+		base=$$(basename $$file .bin); \
+		echo "Testing $$file"; \
+		./$(BIN) $$file > /dev/null; \
+		if diff -u test/$$base.res test/$$base-answer.res > /dev/null; then \
+			echo "$$base: Register contents match \n"; \
+		else \
+			echo "$$base: Register contents don't match \n"; \
+			diff -u test/$$base.res test/$$base-answer.res; \
+		fi; \
+	done;
+
+
 # Clean build artifacts
 clean:
 	rm -rf $(OBJ_DIR) $(BIN) $(ALLANSWERFILES)
