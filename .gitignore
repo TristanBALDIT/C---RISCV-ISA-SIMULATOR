@@ -2,3 +2,4 @@ test/*-answer.res
 test/*.s
 obj/*
 main
+build
