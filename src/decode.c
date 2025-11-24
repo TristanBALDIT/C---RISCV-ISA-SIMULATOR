@@ -142,12 +142,15 @@ static void debugPrintInstructionFields(decoded_fields decoded) {
 
 
 decoded_fields decodeInstruction(uint32_t instr){
-    printf("Instruction: 0x%08X\n", instr);
+    // Extra debug information - Prints the formated instruction
+    // printf("Instruction: 0x%08X\n", instr);
+    
     opcode_t opcode = getOpcode(instr);
     instruction_t instrType = getInstructionType(opcode);
     decoded_fields decoded = getRelevantFields(instrType, opcode, instr);
-    
-    debugPrintInstructionFields(decoded);
+
+    // Extra debug information - Prints the values stored in decoded_fields
+    // debugPrintInstructionFields(decoded);
     
     return decoded;
 }
